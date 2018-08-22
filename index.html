@@ -177,6 +177,7 @@
 			var seed;
 			init();
 			animate();
+			var domEvents   = new THREEx.DomEvents(camera, renderer.domElement)
 
 		//	document.getElementById("form").style.display = "none";
 		//	document.getElementById("form").style.display = "none";
@@ -247,7 +248,8 @@
 	  			duration:Math.random()*2 + 7,
 	  			gridSize:Math.random()*10 + 5,
 	  			ampvar:Math.random()*0.3 + 0.1,
-                progress:0
+                progress:0,
+				clicked: false
 			  }
 			  seeds.push(seed);
 			}
@@ -255,8 +257,7 @@
 			    var s = seeds[i];
 				if(i===1){
 					console.log('hi')
-					var domEvents   = new THREEx.DomEvents(camera, renderer.domElement)
-
+					s.mesh.clicked = true
 					domEvents.addEventListener(s.mesh, 'click', function(event){
 						console.log('you clicked on the mesh')
 						$('#id01').modal('show');
@@ -264,34 +265,26 @@
 				}
 
 			}
-			var firstRun = true;
-            function step(timestamp){
+			function step(timestamp){
 
 
                 var  x, y, y2;
                 for (var i = 0; i < seeds.length; i++) {
 					var s = seeds[i];
+					if (s.mesh.clicked === true){
+						console.log('hi')
 
-					if (firstRun === true){
-						if (i=== 1){
-							setTimeout(moveSeed, 10000);
-							console.log('time out ongoing')
-						}else{
-							moveSeed();
-						}
 					}else{
-						moveSeed();
-					}
-					if (i === 2){
-						firstRun = false;
-						console.log('first run now false')
-					}
-					function myF(){console.log('hi')};
-					function moveSeed(){
 	                    if(s.start === null) {s.start = timestamp};
 
 	                    s.progress = (timestamp - s.start) / s.duration / 1000;
-	                    x = (s.progress * s.maxX/s.gridSize);
+						if (i%2===0){
+							x = (s.progress * s.maxX/s.gridSize)-4;
+						} else if (i%3===0) {
+	                    	x = (s.progress * s.maxX/s.gridSize)
+						} else {
+							x = (s.progress * s.maxX/s.gridSize)-8;
+						}
 	                    y = 2 * Math.sin(x);
 
 	                    s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
@@ -303,7 +296,7 @@
 	                        s.maxY = Math.random()*45 - 20;
 	                        s.duration = Math.random()*2 + 7;
 	                        s.gridSize = Math.random()*10 + 5;
-	                        s.ampvar = Math.random()*0.3 + 0.1;
+	                        s.ampvar = Math.random()*0.15 + 0.05;
 
 	                    }
 					}
