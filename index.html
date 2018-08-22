@@ -264,33 +264,49 @@
 				}
 
 			}
+			var firstRun = true;
             function step(timestamp){
 
 
                 var  x, y, y2;
-                randomX = Math.random()*103-100
                 for (var i = 0; i < seeds.length; i++) {
-                    var s = seeds[i];
-                    if(s.start === null) {s.start = timestamp};
+					var s = seeds[i];
 
-                    s.progress = (timestamp - s.start) / s.duration / 1000;
-                    console.log(s.progress)
-                    x = (s.progress * s.maxX/s.gridSize);
-                    y = 2 * Math.sin(x);
+					if (firstRun === true){
+						if (i=== 1){
+							setTimeout(moveSeed, 10000);
+							console.log('time out ongoing')
+						}else{
+							moveSeed();
+						}
+					}else{
+						moveSeed();
+					}
+					if (i === 2){
+						firstRun = false;
+						console.log('first run now false')
+					}
+					function myF(){console.log('hi')};
+					function moveSeed(){
+	                    if(s.start === null) {s.start = timestamp};
 
-                    s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
-                    s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
+	                    s.progress = (timestamp - s.start) / s.duration / 1000;
+	                    x = (s.progress * s.maxX/s.gridSize);
+	                    y = 2 * Math.sin(x);
 
-                    if(s.mesh.position.x >= 66){
-                        s.start = null;
-                        s.maxX = Math.random()*2 + 66;
-                        s.maxY = Math.random()*45 - 20;
-                        s.duration = Math.random()*2 + 7;
-                        s.gridSize = Math.random()*10 + 5;
-                        s.ampvar = Math.random()*0.3 + 0.1;
+	                    s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
+	                    s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
 
-                        s.mesh.position.x = randomX
-                    }
+	                    if(s.mesh.position.x >= 66){
+	                        s.start = null;
+	                        s.maxX = Math.random()*2 + 66;
+	                        s.maxY = Math.random()*45 - 20;
+	                        s.duration = Math.random()*2 + 7;
+	                        s.gridSize = Math.random()*10 + 5;
+	                        s.ampvar = Math.random()*0.3 + 0.1;
+
+	                    }
+					}
                 }
                 requestAnimationFrame(step);
             }
