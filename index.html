@@ -231,11 +231,10 @@
 			start = null;
 
 			seeds = []
-			for (var i = 0; i < 3; i++) {
+			for (var i = 0; i < 20; i++) {
 				addSeed();
                 randomX = Math.random()*103-100
 				seeds[i].mesh.position.set(-100, 0, -18);
-                console.log(randomX)
 				scene.add(seeds[i].mesh);
 			}
 
@@ -255,14 +254,13 @@
 			}
 			for (var i = 0; i < seeds.length; i++) {
 			    var s = seeds[i];
-				if(i===1){
-					console.log('hi')
-					s.mesh.clicked = true
-					domEvents.addEventListener(s.mesh, 'click', function(event){
-						console.log('you clicked on the mesh')
-						$('#id01').modal('show');
-					}, false)
-				}
+
+				s.mesh.clicked = true
+				domEvents.addEventListener(s.mesh, 'click', function(event){
+					console.log('you clicked on the mesh')
+					$('#id01').modal('show');
+				}, false)
+
 
 			}
 			function step(timestamp){
