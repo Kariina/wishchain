@@ -15,7 +15,7 @@
 				<span onclick="$('#id01').modal('hide')" class="close" title="Close">&times;</span>
 			</div>
 			<div class="container" role = "main" >
-				<input name ="wish" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
+				<input name ="wish" id="wishForm" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
 				<div  class="button-container">
 					<button type="submit">Submit</button>
 					<button type = "button"onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
@@ -37,9 +37,9 @@
 
 	<div class="console"style="display: none;"></div>
 	<script src="js/three.min.js"></script>
-	<script src = "jquery-3.3.1.min.js"></script>
-	<script src="threex.domevents.js"></script>
-        <script src = "bootstrap.min.js"></script>
+	<script src = "js/query-3.3.1.min.js"></script>
+	<script src="js/threex.domevents.js"></script>
+        <script src = "js/bootstrap.min.js"></script>
 
 	<script>
 	var scene, camera, renderer, controls;
@@ -66,7 +66,7 @@
 		light.position.set(0, 0, 10);
 		scene.add(light);
 	}
-
+	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
 	var seedimg = loader.load("seed.png");
 	var seedgeo = new THREE.PlaneGeometry(4, 3.67);
 	var seedmat = new THREE.MeshBasicMaterial({map:seedimg, transparent:true});
@@ -100,12 +100,11 @@
 	}
 
 	var s;
-	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
 
 	for (var i = 0; i < seeds.length; i++) {
 		s=seeds[i];
-		domEvents.addEventListener(seeds[i].mesh, 'click', function(event){
-			s.clicked = true;
+		domEvents.addEventListener(s.mesh, 'click', function(event){
+			this.clicked = true;
 			console.log('you clicked on the mesh');
 			$('#id01').modal('show');
 		}, false);
@@ -135,7 +134,6 @@
 				}
 
                     		y = 2 * Math.sin(x);
-
 				s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
 		                s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
 
@@ -177,7 +175,7 @@
 		$.getJSON(url, function(data) {
 		  var html = '';
 		  var entry = data.feed.entry;
-		  for (var i = 0; i < entry.length; i++) {
+		  for (var i = entry.length-1; i > 0; i--) {
 		    html += '<p>' + entry[i]['gsx$wish']['$t']+ '          ' +entry[i]['gsx$timestamp']['$t'] + '</p>';
 		  }
 		  $('.container2').html(html);
@@ -199,8 +197,10 @@
 	form.addEventListener('submit', e => {
 		e.preventDefault()
 		fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-			.then(response => console.log('Success!', response))
+			.then(response => console.log('Success!', response, printAllWishes()))
 			.catch(error => console.error('Error!', error.message))
+		document.getElementById("wishForm").value = ""
+
 	})
 
 	</script>
