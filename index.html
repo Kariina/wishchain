@@ -1,221 +1,208 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>new</title>
-
+        	<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>wish chain</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 		<meta http-equiv="Pragma" content="no-cache" />
 		<meta http-equiv="Expires" content="0" />
 	</head>
 	<body>
-
         <div id="id01" class="modal">
-          <form name = "submit-to-google-sheet" class="modal-content animate">
-            <div class="imgcontainer">
-              <span onclick="$('#id01').modal('hide')" class="close" title="Close">&times;</span>
-            </div>
-            <div class="container" role = "main" >
-              <input name ="wish" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
-              <div  class="button-container">
-                  <button type="submit">Submit</button>
-                  <button type = "button"onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
-              </div>
-            </div>
-          </form>
-        </div>
+		<form name = "submit-to-google-sheet" class="modal-content animate">
+			<div class="imgcontainer">
+				<span onclick="$('#id01').modal('hide')" class="close" title="Close">&times;</span>
+			</div>
+			<div class="container" role = "main" >
+				<input name ="wish" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
+				<div  class="button-container">
+					<button type="submit">Submit</button>
+					<button type = "button"onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
+				</div>
+			</div>
+		</form>
+	</div>
 
-		<div id="id02" class="modal">
-
-          <div class="modal-content animate"id="id03">
-			  <div class="modal-header">
-  				<div class="imgcontainer">
+	<div id="id02" class="modal">
+		<div class="modal-content animate"id="id03">
+			<div class="modal-header">
+				<div class="imgcontainer">
   					<span onclick="$('#id02').modal('hide')" class="close" title="Close">&times;</span>
   				</div>
   			</div>
-            <div class="container2" role = "main">
-
-            </div>
+			<div class="container2" role = "main"></div>
 		</div>
-        </div>
-		<div class="console"style="display: none;"></div>
+	</div>
 
-		<script src="js/three.min.js"></script>
-		<script src = "jquery-3.3.1.min.js"></script>
-		<script src="threex.domevents.js"></script>
+	<div class="console"style="display: none;"></div>
+	<script src="js/three.min.js"></script>
+	<script src = "jquery-3.3.1.min.js"></script>
+	<script src="threex.domevents.js"></script>
         <script src = "bootstrap.min.js"></script>
 
-		<script>
-			var scene, camera, renderer, controls;
-			var seed;
-			init();
-			animate();
-			var domEvents   = new THREEx.DomEvents(camera, renderer.domElement)
+	<script>
+	var scene, camera, renderer, controls;
+	var seed;
+        var modal = document.getElementById('id01');
+	var loader = new THREE.TextureLoader();
 
-		//	document.getElementById("form").style.display = "none";
-		//	document.getElementById("form").style.display = "none";
-		//	document.getElementsByClassName("console").style.display = "none";
-        // Get the modal
-            var modal = document.getElementById('id01');
+	init();
+	animate();
+
+	function init() {
+		scene = new THREE.Scene();
+		var skyimg = loader.load("sky.jpg");
+		scene.background = skyimg;
+
+		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		camera.position.set(31, 0, 0);
+		renderer = new THREE.WebGLRenderer();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.body.appendChild( renderer.domElement );
+
+		var light = new THREE.AmbientLight(0xffffff);
+		light.position.set(0, 0, 10);
+		scene.add(light);
+	}
+
+	var seedimg = loader.load("seed.png");
+	var seedgeo = new THREE.PlaneGeometry(4, 3.67);
+	var seedmat = new THREE.MeshBasicMaterial({map:seedimg, transparent:true});
+
+	seeds = [];
+
+	for (var i = 0; i < 20; i++) {
+		addSeed();
+		seeds[i].mesh.position.set(-3, 0, -18);
+		seeds[i].name = i;
+		scene.add(seeds[i].mesh);
+	}
+
+	function addSeed(){
+		var seed = {
+			mesh: new THREE.Mesh(seedgeo, seedmat),
+			name:'',
+		    	start:null,
+			maxX:Math.random()*2 + 66,
+			maxY:Math.random()*45 - 20,
+			maxZ: -10,
+			duration:Math.random()*2 + 7,
+			gridSize:Math.random()*10 + 5,
+			ampvar:Math.random()*0.15 + 0.05,
+			progress:0,
+			clicked: false,
+			currentX: -3,
+			currentY: 0
+		};
+		seeds.push(seed);
+	}
+
+	var s;
+	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+
+	for (var i = 0; i < seeds.length; i++) {
+		s=seeds[i];
+		domEvents.addEventListener(seeds[i].mesh, 'click', function(event){
+			s.clicked = true;
+			console.log('you clicked on the mesh');
+			$('#id01').modal('show');
+		}, false);
+	}
 
 
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
+	function step(timestamp){
+		var  x, y, y2;
+        	for (var i = 0; i < seeds.length; i++) {
+			var s = seeds[i];
+			if (s.clicked === true) {
+				console.log('hi');
+				s.mesh.position.x = s.currentX;
+				s.mesh.position.y = s.currentY;
+			} else {
+				if (s.start === null) {s.start = timestamp};
+
+				s.progress = (timestamp - s.start) / s.duration / 1000;
+
+				//vary x values so the seeds won't start in the same positions
+				if (i%2===0) {
+					x = (s.progress * s.maxX/s.gridSize)-4;
+				} else if (i%3===0) {
+                    			x = (s.progress * s.maxX/s.gridSize);
+				} else {
+					x = (s.progress * s.maxX/s.gridSize)-8;
+				}
+
+                    		y = 2 * Math.sin(x);
+
+				s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
+		                s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
+
+				s.currentX = s.mesh.position.x;
+				s.currentY = s.mesh.position.y;
+
+				//reset when past a certain point
+		                if(s.mesh.position.x >= 66){
+					s.start = null;
+		                        s.maxX = Math.random()*2 + 66;
+		                        s.maxY = Math.random()*45 - 20;
+		                        s.duration = Math.random()*2 + 7;
+		                        s.gridSize = Math.random()*10 + 5;
+		                        s.ampvar = Math.random()*0.15 + 0.05;
+
+		                }
+			}
+        	}
+		requestAnimationFrame(step);
+	}
+
+	requestAnimationFrame(step);
+
+	function animate(){
+		renderer.render(scene,camera)
+  		requestAnimationFrame(animate);
+	}
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+	function printAllWishes(){
+		var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
+
+		// make JSON call to Google Data API
+		$.getJSON(url, function(data) {
+		  var html = '';
+		  var entry = data.feed.entry;
+		  for (var i = 0; i < entry.length; i++) {
+		    html += '<p>' + entry[i]['gsx$wish']['$t']+ '          ' +entry[i]['gsx$timestamp']['$t'] + '</p>';
+		  }
+		  $('.container2').html(html);
+		});
+	}
+
+	printAllWishes();
+
+	// When the user clicks anywhere outside of the modal, close it
+
+	window.onclick = function(event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
                 }
-            }
-        	const scriptURL = 'https://script.google.com/macros/s/AKfycbxsrYDKwDNBIjvImk4GUcQyUxi77FL8cVBPXSy6A-vp3lgu3wbn/exec'
-		    const form = document.forms['submit-to-google-sheet']
+	};
+	const scriptURL = 'https://script.google.com/macros/s/AKfycbxsrYDKwDNBIjvImk4GUcQyUxi77FL8cVBPXSy6A-vp3lgu3wbn/exec';
+	const form = document.forms['submit-to-google-sheet'];
 
-		    form.addEventListener('submit', e => {
-		      e.preventDefault()
-		      fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-		        .then(response => console.log('Success!', response))
-		        .catch(error => console.error('Error!', error.message))
+	form.addEventListener('submit', e => {
+		e.preventDefault()
+		fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+			.then(response => console.log('Success!', response))
+			.catch(error => console.error('Error!', error.message))
+	})
 
-		    })
-
-			function init(){
-				var loader = new THREE.TextureLoader();
-
-				var skyimg = loader.load("sky.jpg")
-
-				scene = new THREE.Scene();
-				scene.background = skyimg
-
-				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-				camera.position.set(31, 0, 0)
-				renderer = new THREE.WebGLRenderer();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
-
-				var light = new THREE.AmbientLight(0xffffff);
-				light.position.set(0, 0, 10);
-				scene.add(light);
-
-			}
-			var loader = new THREE.TextureLoader();
-			var seedimg = loader.load("seed.png")
-			var seedgeo = new THREE.PlaneGeometry(4, 3.67);
-			var seedmat = new THREE.MeshBasicMaterial({map:seedimg, transparent:true});
-
-			start = null;
-
-			seeds = []
-			for (var i = 0; i < 20; i++) {
-				addSeed();
-				seeds[i].mesh.position.set(-3, 0, -18);
-				seeds[i].name = i
-				scene.add(seeds[i].mesh);
-			}
-
-			function addSeed(){
-			  var seed = {
-				mesh: new THREE.Mesh(seedgeo, seedmat),
-				name:'',
-			    start:null,
-	  			maxX:Math.random()*2 + 66,
-	  			maxY:Math.random()*45 - 20,
-				maxZ: -10,
-	  			duration:Math.random()*2 + 7,
-	  			gridSize:Math.random()*10 + 5,
-	  			ampvar:Math.random()*0.15 + 0.05,
-                progress:0,
-				clicked: false,
-				currentX: -3,
-				currentY: 0
-			  }
-			  seeds.push(seed);
-			}
-			var s;
-			for (var i = 0; i < seeds.length; i++) {
-				s=seeds[i]
-				domEvents.addEventListener(seeds[i].mesh, 'click', function(event){
-					this.clicked = true
-					console.log('you clicked on the mesh', this)
-
-					$('#id01').modal('show');
-					}, false)
-
-
-			}
-
-
-            function step(timestamp){
-
-
-                var  x, y, y2;
-                for (var i = 0; i < seeds.length; i++) {
-					var s = seeds[i];
-					if (this.clicked === true){
-						console.log('hi')
-						s.mesh.position.x = s.currentX
-						s.mesh.position.y = s.currentY
-					}else{
-	                    if (s.start === null) {s.start = timestamp};
-
-	                    s.progress = (timestamp - s.start) / s.duration / 1000;
-						if (i%2===0){
-							x = (s.progress * s.maxX/s.gridSize)-4;
-						} else if (i%3===0) {
-	                    	x = (s.progress * s.maxX/s.gridSize)
-						} else {
-							x = (s.progress * s.maxX/s.gridSize)-8;
-						}
-	                    y = 2 * Math.sin(x);
-
-	                    s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
-	                    s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
-
-						s.currentX = s.mesh.position.x
-						s.currentY = s.mesh.position.y
-	                    if(s.mesh.position.x >= 66){
-	                        s.start = null;
-	                        s.maxX = Math.random()*2 + 66;
-	                        s.maxY = Math.random()*45 - 20;
-	                        s.duration = Math.random()*2 + 7;
-	                        s.gridSize = Math.random()*10 + 5;
-	                        s.ampvar = Math.random()*0.15 + 0.05;
-
-	                    }
-					}
-                }
-                requestAnimationFrame(step);
-            }
-
-            requestAnimationFrame(step);
-
-			function animate(){
-				renderer.render(scene,camera)
-  				requestAnimationFrame(animate);
-
-			}
-
-			function onWindowResize() {
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
-			}
-
-			function printAllWishes(){
-				 var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
-
-				// make JSON call to Google Data API
-				$.getJSON(url, function(data) {
-				  var html = '';
-				  var entry = data.feed.entry;
-				  for (var i = 0; i < entry.length; i++) {
-				    html += '<p>' + entry[i]['gsx$wish']['$t']+ '          ' +entry[i]['gsx$timestamp']['$t'] + '</p>';
-				  }
-				  $('.container2').html(html);
-				});
-			}
-			printAllWishes();
-
-
-		</script>
+	</script>
 	</body>
 </html>
