@@ -4,133 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>new</title>
 
-		<style>
-	        canvas { width: 100%; height: 100%; }
-            body { margin: 0;font-family: Arial, Helvetica, sans-serif;}
-
-            /* Full-width input fields */
-            input[type=text] {
-                width: 100%;
-                padding: 5px 5px;
-                margin: 8px 0;
-                display: inline-block;
-                border: 1px solid #ccc;
-                box-sizing: border-box;
-            }
-
-            /* Set a style for all buttons */
-            button {
-                background-color: #24c4ff;
-                color: white;
-                padding: 5px 20px;
-                margin: 0px 0;
-                border: none;
-                cursor: pointer;
-                width: 40%;
-            }
-
-            button:hover {
-                opacity: 0.8;
-            }
-
-
-
-            /* Center the image and position the close button */
-            .imgcontainer {
-				position: relative;
-				margin: -12px 0 -8px 0;
-            }
-
-
-            .button-container {
-              text-align: center;
-            }
-
-            .container {
-                padding: 12px 12px 3px 12px;
-            }
-			.container2 {
-				padding: 12px 12px 3px 12px;
-			}
-			#id03{
-				background-color: #fefefe;
-                margin: 4% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-                border: 1px solid #888;
-                width: 20%; /* Could be more or less, depending on screen size */
-                height: 60%;
-                overflow-y: auto;
-                overflow-x: visible;
-			}
-			.modal-header{
-                position:absolute;
-				margin-left:20%
-
-            }
-            /* The Modal (background) */
-            .modal {
-                display: none; /* Hidden by default */
-                position: fixed; /* Stay in place */
-                z-index: 1; /* Sit on top */
-                left: 0;
-                top: 0;
-                width: 100%; /* Full width */
-                height: 100%; /* Full height */
-                overflow: auto; /* Enable scroll if needed */
-                background-color: rgb(0,0,0); /* Fallback color */
-                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-                padding-top: 60px;
-            }
-
-            /* Modal Content/Box */
-            .modal-content {
-                background-color: #fefefe;
-                margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-                border: 1px solid #888;
-                width: 20%; /* Could be more or less, depending on screen size */
-                height: 8%;
-            }
-
-            /* The Close Button (x) */
-            .close {
-                position: absolute;
-                right: -15px;
-                top: -10;
-                color: #000;
-                font-size: 20px;
-                font-weight: bold;
-            }
-
-            .close:hover,
-            .close:focus {
-                color: red;
-                cursor: pointer;
-            }
-
-            /* Add Zoom Animation */
-            .animate {
-                -webkit-animation: animatezoom 0.6s;
-                animation: animatezoom 0.6s
-            }
-
-            @-webkit-keyframes animatezoom {
-                from {-webkit-transform: scale(0)}
-                to {-webkit-transform: scale(1)}
-            }
-
-            @keyframes animatezoom {
-                from {transform: scale(0)}
-                to {transform: scale(1)}
-            }
-
-            /* Change styles for span and cancel button on extra small screens */
-            @media screen and (max-width: 300px) {
-                span.psw {
-                   display: block;
-                   float: none;
-                }
-
-            }
-		</style>
+		<link rel="stylesheet" type="text/css" href="style.css">
 		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 		<meta http-equiv="Pragma" content="no-cache" />
 		<meta http-equiv="Expires" content="0" />
@@ -146,7 +20,7 @@
               <input name ="wish" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
               <div  class="button-container">
                   <button type="submit">Submit</button>
-                  <button onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
+                  <button type = "button"onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
               </div>
             </div>
           </form>
@@ -168,9 +42,9 @@
 		<div class="console"style="display: none;"></div>
 
 		<script src="js/three.min.js"></script>
-		<script src = "js/jquery-3.3.1.min.js"></script>
-		<script src="js/threex.domevents.js"></script>
-        <script src = "js/bootstrap.min.js"></script>
+		<script src = "jquery-3.3.1.min.js"></script>
+		<script src="threex.domevents.js"></script>
+        <script src = "bootstrap.min.js"></script>
 
 		<script>
 			var scene, camera, renderer, controls;
@@ -234,46 +108,54 @@
 			for (var i = 0; i < 20; i++) {
 				addSeed();
 				seeds[i].mesh.position.set(-3, 0, -18);
+				seeds[i].name = i
 				scene.add(seeds[i].mesh);
 			}
 
 			function addSeed(){
 			  var seed = {
 				mesh: new THREE.Mesh(seedgeo, seedmat),
+				name:'',
 			    start:null,
 	  			maxX:Math.random()*2 + 66,
 	  			maxY:Math.random()*45 - 20,
+				maxZ: -10,
 	  			duration:Math.random()*2 + 7,
 	  			gridSize:Math.random()*10 + 5,
 	  			ampvar:Math.random()*0.15 + 0.05,
                 progress:0,
-				clicked: false
+				clicked: false,
+				currentX: -3,
+				currentY: 0
 			  }
 			  seeds.push(seed);
 			}
+			var s;
 			for (var i = 0; i < seeds.length; i++) {
-			    var s = seeds[i];
+				s=seeds[i]
+				domEvents.addEventListener(seeds[i].mesh, 'click', function(event){
+					this.clicked = true
+					console.log('you clicked on the mesh', this)
 
-				domEvents.addEventListener(s.mesh, 'click', function(event){
-					s.mesh.clicked = true
-					
-					console.log('you clicked on the mesh')
 					$('#id01').modal('show');
-				}, false)
+					}, false)
 
 
 			}
-			function step(timestamp){
+
+
+            function step(timestamp){
 
 
                 var  x, y, y2;
                 for (var i = 0; i < seeds.length; i++) {
 					var s = seeds[i];
-					if (s.mesh.clicked === true){
+					if (this.clicked === true){
 						console.log('hi')
-
+						s.mesh.position.x = s.currentX
+						s.mesh.position.y = s.currentY
 					}else{
-	                    if(s.start === null) {s.start = timestamp};
+	                    if (s.start === null) {s.start = timestamp};
 
 	                    s.progress = (timestamp - s.start) / s.duration / 1000;
 						if (i%2===0){
@@ -288,6 +170,8 @@
 	                    s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
 	                    s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
 
+						s.currentX = s.mesh.position.x
+						s.currentY = s.mesh.position.y
 	                    if(s.mesh.position.x >= 66){
 	                        s.start = null;
 	                        s.maxX = Math.random()*2 + 66;
@@ -307,6 +191,7 @@
 			function animate(){
 				renderer.render(scene,camera)
   				requestAnimationFrame(animate);
+
 			}
 
 			function onWindowResize() {
