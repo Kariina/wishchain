@@ -15,10 +15,10 @@
 				<span onclick="$('#id01').modal('hide')" class="close" title="Close">&times;</span>
 			</div>
 			<div class="container" role = "main" >
-				<input name ="wish" id="wishForm" type="text" placeholder="Enter your wish" name="uname" autocomplete="off">
+				<input name ="wish" id="wishForm" type="text" placeholder="Enter your wish" autocomplete="off" maxlength="65">
 				<div  class="button-container">
 					<button type="submit">Submit</button>
-					<button type = "button"onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
+					<button type="button" onclick="$('#id02').modal('show');$('#id01').modal('hide');">See all wishes</button>
 				</div>
 			</div>
 		</form>
@@ -34,19 +34,24 @@
 			<div class="container2" role = "main"></div>
 		</div>
 	</div>
+	<div id="id04" class="modal">
+		<div class = "welcome-content">
+			<h1>Welcome to wish chain.</h1>
+			<p>Catch a seed to make a wish and add to the chain!</p>
+		</div>
+	</div>
 
-	<div class="console"style="display: none;"></div>
 	<script src="js/three.min.js"></script>
-	<script src = "js/jquery-3.3.1.min.js"></script>
-	<script src="js/threex.domevents.js"></script>
-        <script src = "js/bootstrap.min.js"></script>
+	<script src = "jquery-3.3.1.min.js"></script>
+	<script src="threex.domevents.js"></script>
+        <script src = "bootstrap.min.js"></script>
 
 	<script>
 	var scene, camera, renderer, controls;
 	var seed;
-        var modal = document.getElementById('id01');
 	var loader = new THREE.TextureLoader();
 
+	$('#id04').modal('show');
 	init();
 	animate();
 
@@ -66,32 +71,27 @@
 		light.position.set(0, 0, 10);
 		scene.add(light);
 	}
-	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+
 	var seedimg = loader.load("seed.png");
 	var seedgeo = new THREE.PlaneGeometry(4, 3.67);
 	var seedmat = new THREE.MeshBasicMaterial({map:seedimg, transparent:true});
-
 	seeds = [];
 
 	for (var i = 0; i < 20; i++) {
 		addSeed();
-		seeds[i].mesh.position.set(-3, 0, -18);
-		seeds[i].name = i;
 		scene.add(seeds[i].mesh);
 	}
 
 	function addSeed(){
 		var seed = {
 			mesh: new THREE.Mesh(seedgeo, seedmat),
-			name:'',
-		    	start:null,
-			maxX:Math.random()*2 + 66,
-			maxY:Math.random()*45 - 20,
-			maxZ: -10,
-			duration:Math.random()*2 + 7,
-			gridSize:Math.random()*10 + 5,
-			ampvar:Math.random()*0.15 + 0.05,
-			progress:0,
+			start: null,
+			maxX: Math.random()*2 + 66,
+			maxY: Math.random()*45 - 20,
+			duration: Math.random()*2 + 7,
+			gridSize: Math.random()*10 + 5,
+			ampvar: Math.random()*0.15 + 0.05,
+			progress: 0,
 			clicked: false,
 			currentX: -3,
 			currentY: 0
@@ -99,32 +99,22 @@
 		seeds.push(seed);
 	}
 
-	var s;
-
-	for (var i = 0; i < seeds.length; i++) {
-		s=seeds[i];
-		domEvents.addEventListener(s.mesh, 'click', function(event){
-			this.clicked = true;
-			console.log('you clicked on the mesh');
-			$('#id01').modal('show');
-		}, false);
-	}
-
-
 	function step(timestamp){
 		var  x, y, y2;
         	for (var i = 0; i < seeds.length; i++) {
 			var s = seeds[i];
-			if (s.clicked === true) {
-				console.log('hi');
-				s.mesh.position.x = s.currentX;
-				s.mesh.position.y = s.currentY;
-			} else {
+			//if no modals are open, the seed should move
+			if ($('#id01').is(':hidden')&&$('#id02').is(':hidden')) {
+				s.clicked = false;
+			}
+			//the seed moves when not clicked
+			if (s.clicked === false) {
+
 				if (s.start === null) {s.start = timestamp};
 
 				s.progress = (timestamp - s.start) / s.duration / 1000;
 
-				//vary x values so the seeds won't start in the same positions
+				//vary x values so the seeds won't start in the same position
 				if (i%2===0) {
 					x = (s.progress * s.maxX/s.gridSize)-4;
 				} else if (i%3===0) {
@@ -134,8 +124,11 @@
 				}
 
                     		y = 2 * Math.sin(x);
+				z = 1.5*Math.sin(x)-18;
+
 				s.mesh.position.x = Math.min(s.maxX, s.gridSize * x);
 		                s.mesh.position.y = s.maxY/2 +(s.gridSize * y)*s.ampvar;
+				s.mesh.position.z = z
 
 				s.currentX = s.mesh.position.x;
 				s.currentY = s.mesh.position.y;
@@ -148,7 +141,6 @@
 		                        s.duration = Math.random()*2 + 7;
 		                        s.gridSize = Math.random()*10 + 5;
 		                        s.ampvar = Math.random()*0.15 + 0.05;
-
 		                }
 			}
         	}
@@ -168,29 +160,21 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
 
+	var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
 	function printAllWishes(){
-		var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
-
-		// make JSON call to Google Data API
+		// make JSON call to Google Data API and print out all the wishes
 		$.getJSON(url, function(data) {
-		  var html = '';
+		  var wishes = '';
 		  var entry = data.feed.entry;
 		  for (var i = entry.length-1; i > 0; i--) {
-		    html += '<p>' + entry[i]['gsx$wish']['$t']+ '          ' +entry[i]['gsx$timestamp']['$t'] + '</p>';
+		    wishes += '<p>' + entry[i]['gsx$timestamp']['$t']+ '          ' + entry[i]['gsx$wish']['$t'] + '</p>';
 		  }
-		  $('.container2').html(html);
+		  $('.container2').html(wishes);
 		});
 	}
 
 	printAllWishes();
 
-	// When the user clicks anywhere outside of the modal, close it
-
-	window.onclick = function(event) {
-		if (event.target == modal) {
-			modal.style.display = "none";
-                }
-	};
 	const scriptURL = 'https://script.google.com/macros/s/AKfycbxsrYDKwDNBIjvImk4GUcQyUxi77FL8cVBPXSy6A-vp3lgu3wbn/exec';
 	const form = document.forms['submit-to-google-sheet'];
 
@@ -202,6 +186,93 @@
 		document.getElementById("wishForm").value = ""
 
 	})
+
+	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+	//the following doesn't work when done in a for loop because when a seed is clicked the computer no longer knows the value of its index
+	domEvents.addEventListener(seeds[0].mesh, 'click', function(event){
+	        seeds[0].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[1].mesh, 'click', function(event){
+	        seeds[1].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[2].mesh, 'click', function(event){
+	        seeds[2].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[3].mesh, 'click', function(event){
+	        seeds[3].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[4].mesh, 'click', function(event){
+	        seeds[4].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[5].mesh, 'click', function(event){
+	        seeds[5].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[6].mesh, 'click', function(event){
+	        seeds[6].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[7].mesh, 'click', function(event){
+	        seeds[7].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[8].mesh, 'click', function(event){
+	        seeds[8].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[9].mesh, 'click', function(event){
+	        seeds[9].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[10].mesh, 'click', function(event){
+	        seeds[10].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[10].mesh, 'click', function(event){
+	        seeds[10].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[11].mesh, 'click', function(event){
+	        seeds[11].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[12].mesh, 'click', function(event){
+	        seeds[12].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[13].mesh, 'click', function(event){
+	        seeds[13].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[14].mesh, 'click', function(event){
+	        seeds[14].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[15].mesh, 'click', function(event){
+	        seeds[15].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[16].mesh, 'click', function(event){
+	        seeds[16].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[17].mesh, 'click', function(event){
+	        seeds[17].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[18].mesh, 'click', function(event){
+	        seeds[18].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
+	domEvents.addEventListener(seeds[19].mesh, 'click', function(event){
+	        seeds[19].clicked = true;
+	        $('#id01').modal('show');
+	}, false);
 
 	</script>
 	</body>
