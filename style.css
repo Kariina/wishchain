@@ -34,6 +34,11 @@
             color:white;
             font-size: 1.2em;
     }
+    
+    small{
+            color:white;
+    }
+
     .imgcontainer {
         position: relative;
         margin: -12px 0 -8px 0;
