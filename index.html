@@ -161,10 +161,16 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
 	
-	const scriptURL = 'https://script.google.com/macros/s/AKfycbwUXpBC7H0yGQtF3Crwc9fm19wekd_KdjiW2HDlK_nehv05YXgQhSWfYVdN5qML5ZZk7A/exec';
+	const scriptURL = 'https://script.google.com/macros/s/AKfycbw1BlwIG-SdR9QExKWw9vc0LS0Y1Xa3DE-8UbtUd4IdfFrSaDW9y38k29x1aW-48WbzPw/exec';
 
 	function printAllWishes() {
-    fetch(scriptURL)
+        fetch(scriptURL, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    	})
         .then(response => response.json())
         .then(data => {
             var wishes = '';
