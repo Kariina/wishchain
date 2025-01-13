@@ -164,27 +164,26 @@
 	const scriptURL = 'https://script.google.com/macros/s/AKfycbw1BlwIG-SdR9QExKWw9vc0LS0Y1Xa3DE-8UbtUd4IdfFrSaDW9y38k29x1aW-48WbzPw/exec';
 
 	function printAllWishes() {
-        fetch(scriptURL, {
+    fetch(scriptURL, {
         method: 'GET',
-        mode: 'cors',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain'
         }
-    	})
-        .then(response => response.json())
-        .then(data => {
-            var wishes = '';
-            // Start loop from 1 to skip the first row
-            for (let i = 1; i < data.length; i++) {
-                var row = data[i];
-                var date = new Date(row[0]);
-                var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
-                wishes += `<p>${formattedDate} ${row[1]}</p>`;
-            }
-            $('.container2').html(wishes);
-        })
-        .catch(error => console.error('Error!', error));
-	}
+    })
+    .then(response => response.json())
+    .then(data => {
+        var wishes = '';
+        // Start loop from 1 to skip the first row
+        for (let i = 1; i < data.length; i++) {
+            var row = data[i];
+            var date = new Date(row[0]);
+            var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+            wishes += `<p>${formattedDate} ${row[1]}</p>`;
+        }
+        $('.container2').html(wishes);
+    })
+    .catch(error => console.error('Error!', error));
+}
 
 	printAllWishes();
 
@@ -193,17 +192,26 @@
 	form.addEventListener('submit', e => {
 		e.preventDefault();
 		const formData = new FormData(form);
+		
+		// Create a simple URLSearchParams instead of FormData
+		const params = new URLSearchParams();
+		for (const pair of formData) {
+			params.append(pair[0], pair[1]);
+		}
+
 		fetch(scriptURL, {
 			method: 'POST',
-			body: formData
+			headers: {
+				'Content-Type': 'text/plain',  // Changed from default content type
+			},
+			body: params.toString()
 		})
-			.then(response => response.text())
-			.then(result => {
-				console.log('Success!', result);
-				printAllWishes();
-			})
-			.catch(error => console.error('Error!', error.message));
-		document.getElementById("wishForm").value = "";
+		.then(response => {
+			console.log('Success!');
+			document.getElementById("wishForm").value = "";
+			printAllWishes();
+		})
+		.catch(error => console.error('Error!', error));
 	});
 
 	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
