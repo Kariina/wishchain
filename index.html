@@ -160,33 +160,45 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
+	
+	const scriptURL = 'https://script.google.com/macros/s/AKfycbw6kX_IHXlYROZydc1t7rNSLGarZ-Xq7Kf0kwyvJgSaSkRxJvdIbmAwZWsCiut8bMRTww/exec';
 
-	var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
-	function printAllWishes(){
-		// make JSON call to Google Data API and print out all the wishes
-		$.getJSON(url, function(data) {
-		  var wishes = '';
-		  var entry = data.feed.entry;
-		  for (var i = entry.length-1; i > 0; i--) {
-		    wishes += '<p>' + entry[i]['gsx$timestamp']['$t']+ '          ' + entry[i]['gsx$wish']['$t'] + '</p>';
-		  }
-		  $('.container2').html(wishes);
-		});
+	function printAllWishes() {
+    fetch(scriptURL)
+        .then(response => response.json())
+        .then(data => {
+            var wishes = '';
+            // Start loop from 1 to skip the first row
+            for (let i = 1; i < data.length; i++) {
+                var row = data[i];
+                var date = new Date(row[0]);
+                var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+                wishes += `<p>${formattedDate} ${row[1]}</p>`;
+            }
+            $('.container2').html(wishes);
+        })
+        .catch(error => console.error('Error!', error));
 	}
 
 	printAllWishes();
 
-	const scriptURL = 'https://script.google.com/macros/s/AKfycbxsrYDKwDNBIjvImk4GUcQyUxi77FL8cVBPXSy6A-vp3lgu3wbn/exec';
 	const form = document.forms['submit-to-google-sheet'];
 
 	form.addEventListener('submit', e => {
-		e.preventDefault()
-		fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-			.then(response => console.log('Success!', response, printAllWishes()))
-			.catch(error => console.error('Error!', error.message))
-		document.getElementById("wishForm").value = ""
-
-	})
+		e.preventDefault();
+		const formData = new FormData(form);
+		fetch(scriptURL, {
+			method: 'POST',
+			body: formData
+		})
+			.then(response => response.text())
+			.then(result => {
+				console.log('Success!', result);
+				printAllWishes();
+			})
+			.catch(error => console.error('Error!', error.message));
+		document.getElementById("wishForm").value = "";
+	});
 
 	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
 	//the following doesn't work when done in a for loop because when a seed is clicked the computer no longer knows the value of its index
