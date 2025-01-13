@@ -160,6 +160,7 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
+<<<<<<< HEAD
 	
 	const scriptURL = 'https://script.google.com/macros/s/AKfycbw1BlwIG-SdR9QExKWw9vc0LS0Y1Xa3DE-8UbtUd4IdfFrSaDW9y38k29x1aW-48WbzPw/exec';
 
@@ -184,12 +185,29 @@
     })
     .catch(error => console.error('Error!', error));
 }
+=======
+
+	var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
+	function printAllWishes(){
+		// make JSON call to Google Data API and print out all the wishes
+		$.getJSON(url, function(data) {
+		  var wishes = '';
+		  var entry = data.feed.entry;
+		  for (var i = entry.length-1; i > 0; i--) {
+		    wishes += '<p>' + entry[i]['gsx$timestamp']['$t']+ '          ' + entry[i]['gsx$wish']['$t'] + '</p>';
+		  }
+		  $('.container2').html(wishes);
+		});
+	}
+>>>>>>> parent of 4250ef6 (Fix Google Sheets integration not working)
 
 	printAllWishes();
 
+	const scriptURL = 'https://script.google.com/macros/s/AKfycbxsrYDKwDNBIjvImk4GUcQyUxi77FL8cVBPXSy6A-vp3lgu3wbn/exec';
 	const form = document.forms['submit-to-google-sheet'];
 
 	form.addEventListener('submit', e => {
+<<<<<<< HEAD
 		e.preventDefault();
 		const formData = new FormData(form);
 		
@@ -213,6 +231,15 @@
 		})
 		.catch(error => console.error('Error!', error));
 	});
+=======
+		e.preventDefault()
+		fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+			.then(response => console.log('Success!', response, printAllWishes()))
+			.catch(error => console.error('Error!', error.message))
+		document.getElementById("wishForm").value = ""
+
+	})
+>>>>>>> parent of 4250ef6 (Fix Google Sheets integration not working)
 
 	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
 	//the following doesn't work when done in a for loop because when a seed is clicked the computer no longer knows the value of its index
