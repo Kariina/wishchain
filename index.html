@@ -160,32 +160,6 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
-<<<<<<< HEAD
-	
-	const scriptURL = 'https://script.google.com/macros/s/AKfycbw1BlwIG-SdR9QExKWw9vc0LS0Y1Xa3DE-8UbtUd4IdfFrSaDW9y38k29x1aW-48WbzPw/exec';
-
-	function printAllWishes() {
-    fetch(scriptURL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'text/plain'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        var wishes = '';
-        // Start loop from 1 to skip the first row
-        for (let i = 1; i < data.length; i++) {
-            var row = data[i];
-            var date = new Date(row[0]);
-            var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
-            wishes += `<p>${formattedDate} ${row[1]}</p>`;
-        }
-        $('.container2').html(wishes);
-    })
-    .catch(error => console.error('Error!', error));
-}
-=======
 
 	var url = "https://spreadsheets.google.com/feeds/list/1KcK_3FIpMMNJo64JgNUC4nKzGPRUII8l7dd5fSay4RQ/od6/public/values?alt=json";
 	function printAllWishes(){
@@ -199,7 +173,6 @@
 		  $('.container2').html(wishes);
 		});
 	}
->>>>>>> parent of 4250ef6 (Fix Google Sheets integration not working)
 
 	printAllWishes();
 
@@ -207,31 +180,6 @@
 	const form = document.forms['submit-to-google-sheet'];
 
 	form.addEventListener('submit', e => {
-<<<<<<< HEAD
-		e.preventDefault();
-		const formData = new FormData(form);
-		
-		// Create a simple URLSearchParams instead of FormData
-		const params = new URLSearchParams();
-		for (const pair of formData) {
-			params.append(pair[0], pair[1]);
-		}
-
-		fetch(scriptURL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/plain',  // Changed from default content type
-			},
-			body: params.toString()
-		})
-		.then(response => {
-			console.log('Success!');
-			document.getElementById("wishForm").value = "";
-			printAllWishes();
-		})
-		.catch(error => console.error('Error!', error));
-	});
-=======
 		e.preventDefault()
 		fetch(scriptURL, { method: 'POST', body: new FormData(form)})
 			.then(response => console.log('Success!', response, printAllWishes()))
@@ -239,7 +187,6 @@
 		document.getElementById("wishForm").value = ""
 
 	})
->>>>>>> parent of 4250ef6 (Fix Google Sheets integration not working)
 
 	var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
 	//the following doesn't work when done in a for loop because when a seed is clicked the computer no longer knows the value of its index
